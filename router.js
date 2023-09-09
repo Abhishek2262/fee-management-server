@@ -1,93 +1,52 @@
-const router = require("express").Router(); // Importing Router from express
-const Student = require("./model/model.js");
+const studentRouter = require('./controllers/studentController')
+const {getAllStudent, getSingleStudent, createStudent, updateStudent, deleteStudent} = require('./controllers/studentController')
+const {getAllFees, addNewFeeItem, getSingleFeeItem, getAllFeesForOneStudent} = require('./controllers/feesController')
+const router = require('express').Router();
 
-// type: @GET
-// desc: Get all students
-router.get("/student", (req, res) => {
-    try {
-      Student.find({}).then(function (student) {
-        res.json({ data: student });
-      });
-    } catch (err) {
-      console.error(err);
-    }
-});
+/** ---------- Student Routes ---------- */
+router.get('/students', getAllStudent )
+router.post('/students/create',  createStudent)
+router.post('/students', getSingleStudent  )
+router.put('/students', updateStudent )
+router.post('/students/delete', deleteStudent )
 
 
-// Type: @POST
-// desc: Create Student
-router.post("/create", async (req, res) => {
-  try {
-    const { name, dob, classes, rollNumber, phoneNumber } = req.body;
-    const response = await Student.find({}).count()
-    const addmissionNumber = "ADM" + (response+1)
-    const newStudent = new Student({ name, addmissionNumber, dob, classes, rollNumber, phoneNumber });
-    const student = await newStudent.save();
+/** ---------- Fees Routes ---------- */
 
-    if (!student) res.json({ msg: 'Error in creating student' })
-    else res.json({ msg: 'Student created successfully' })
+/**
+ * METHOD: @GET
+ * DESC: Get all the fees deposited by all of the students
+ * RETURNS: Multiple values
+ * 
+ */
+router.get('/fees', getAllFees )
 
-    // res.json(newStudent);
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-
-// type: @POST
-// desc: Get single student
-router.post("/student", (req, res) => {
-    try {
-        const {rollNumber} = req.body
-      Student.findOne({rollNumber}).then(function (student) {
-        res.json({ data: student });
-      });
-    } catch (err) {
-      console.error(err);
-    }
-});
+/**
+ * METHOD: @POST
+ * DESC: Add new fees to DB
+ * RETURNS: Success/Failure
+ * 
+ */
+router.post('/fees/add', addNewFeeItem)
 
 
-// type: @PUT
-// desc: Update student
-router.put("/student", async (req, res) => {
-    try {
-        const {rollNumber} = req.body
-      const student = await Student.findOne({rollNumber})
-
-        if (!student) res.json({ msg: "Student doesn't exist" })
-        else {
-            const { name, dob, classes, rollNumber, phoneNumber } = req.body;
-            const response = await Student.updateOne({rollNumber}, {$set: { name, dob, classes, rollNumber, phoneNumber }})
-            if (!response) res.json({ msg: "Error in updating student" })
-            else res.json({ msg: 'Student updated successfully' })
-        }
-
-    } catch (err) {
-      console.error(err);
-    }
-});
+/**
+ * METHOD: @GET
+ * DESC: Get all fees for one student by student id
+ * RETURNS: Multiple values
+ */
+router.get('/fees', getAllFeesForOneStudent)
 
 
-// type: @DELETE
-// desc: Delete student
-router.delete("/student", async (req, res) => {
-    try {
-        const {rollNumber} = req.body
-      const student = await Student.findOne({rollNumber})
+/**
+ * METHOD: @GET
+ * DESC: Get single fees details by Fee id
+ * RETURNS: Single Value
+ */
 
-        if (!student) res.json({ msg: "Student doesn't exist" })
-        else {
-            const {rollNumber} = res.body;
-            const response = await Student.findOneAndDelete({ rollNumber })
-            if (!response) res.json({ msg: "Error in deleting student" })
-            else res.json({ msg: 'Student deleted successfully' })
-        }
+router.get('/fees', getSingleFeeItem)
 
-    } catch (err) {
-      console.error(err);
-    }
-});
+
 
 
 module.exports = router;
